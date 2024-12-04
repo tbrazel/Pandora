@@ -23,6 +23,12 @@ export
 ################################################################
 ################################################################
 
+
+#TODO: EP's should take inequalities as input to work in components
+#      of incidence varieties avoiding certain varieties
+#      EP's should be able to take in symmetries to pass on to
+#        the HC.jl monodromy function, and ultimately to 
+#        avoid the combinatorial blowup present in so many applied a.g. problems
 mutable struct EnumerativeProblem
     F::System
     BaseFibre::Union{Tuple{Result,Vector{ComplexF64}},Nothing}
