@@ -1,0 +1,41 @@
+############################################
+Pandora is designed as follows
+    An AbstractEnumerativeProblem is an object which represents a branched covers
+        so that there is a function which analytically continues a fibre along a path 
+        in the base of the cover
+    If you code an abstract enumerative problem E, representing pi:X -> Y then there
+        should be a function E(y) which gives pi^{-1}(y) along with other functions 
+        for tracking a fibre S_1 over y_1 to the fibre over y_2 etc
+    
+    Enumerative problems have enumerative properties, like say, 'degree'
+    The degree of an enumerative problem is a natural number, and so there is no need
+        to make a new structure for degree. It is coded as an enumerative problem like
+            degree = EnumerativeProblem{Int}("degree")
+        and more generally as 
+            effective_name = EnumerativeProperty{T}(name) where name is an internal name and effective_name is 
+                user facing. T is the type that the enumerative problem is.
+        
+    If EP is an EnumerativeProperty and E is an enumerative problem, you can call
+        EP(E)
+    Of course, Pandora needs to know how an algorithm to compute EP of an enumerative problem E. 
+    So as a developer, in order to make this work, you need to write a function 
+        compute_EP(E::EnumerativeProblem)
+    and provide meta-data in an AlgorithmDatum struct 
+        compute_EP_AD = AlgorithmDatum(...)
+    and push the key-value pair 
+        compute_EP=>compute_EP_AD
+    into the global constant ALGORITHM_DATA
+    
+    Now EP(E) will work, since
+        EnumerativeProperty(E::EnumerativeProblem)
+    when called like
+        EP(E)
+    automatically searches the dictionary ALGORITHM_DATA for an algorithm
+    whose metadata indicates it computes EP and runs it. 
+
+
+
+
+
+
+

@@ -1,32 +1,41 @@
 module Pandora
 
-using Pkg 					#To remove eventually
-
-using HomotopyContinuation	
-using LinearAlgebra
-using Combinatorics
-using Oscar			
-using Plots
-using ProgressBars
-using Clustering
-using ImplicitPlots
-
-
-
-import HomotopyContinuation.solve
-import HomotopyContinuation.degree
-import HomotopyContinuation.dim
-import Oscar.dim
-import Oscar.degree
-
-export order
+using Pkg
 
 const PROJECT_TOML = Pkg.TOML.parsefile(joinpath(@__DIR__, "..", "Project.toml"))
 const VERSION_NUMBER = VersionNumber(PROJECT_TOML["version"])
 
+using Dates: today
+
+# Use from HC only
+using HomotopyContinuation: TrackerOptions, CertificationResult, Result, subs, coefficients, support_coefficients, paths_to_track, degrees, Expression, Variable, differentiate
+# Use and extend from HC
+import HomotopyContinuation: expressions, variables, parameters, solve, solutions, evaluate, certify, mixed_volume
+# Use from HC with intent to export
+using HomotopyContinuation: System, @var
+# HC exports
+export System, @var, mixed_volume
+
+using LinearAlgebra: norm, isapprox, nullspace, I, det
+
+# Use from Oscar only
+using Oscar: Perm, PermGroupElem, PermGroup, symmetric_group, sub, Polyhedron, convex_hull, orbits, small_generating_set, minimal_generating_set
+using Oscar: PointVector 
+# Use and extend from Oscar
+import Oscar: perm, degree
+# Use from Oscar with intent to export
+using Oscar: is_primitive, order, is_transitive, describe, gens, faces, volume, is_natural_alternating_group, is_natural_symmetric_group, minimal_block_reps
+#imports as new names
+import Oscar: vertices as oscar_vertices, dim as oscar_dim, ambient_dim as oscar_ambient_dim, orbits
+# Oscar exports
+export gens, order, is_primitive, is_transitive, describe, dim, vertices, faces, volume, orbits, is_natural_alternating_group, is_natural_symmetric_group, minimal_block_reps
+
+
+using IntegerSmithNormalForm: snf, elementary_divisors
+using Combinatorics: combinations
 
 function __init__()
-	print(raw"
+    print(raw"
         0ooo000oo oo oo
      0oo00o0o0o  0o0 o8oo
      0000o0o000o00o0000000
@@ -40,83 +49,29 @@ function __init__()
            .....//||||\....
          _______/PANDO(RA)\_____
           ...................
-				TCB
-				");
-
-		print("Version")
-		printstyled(" $VERSION_NUMBER ", color = :green)
+                TCB
+    ")
+    print("Version")
+    printstyled(" $VERSION_NUMBER ", color = :green)
 end
 
-
-
-include("CoreObjects/Varieties/Variety.jl")
-include("CoreObjects/EnumerativeProblems/EnumerativeProblem.jl")
-#include("Fibres/Scores.jl")
-
-#This needs to be fixed in several ways.
-#include("AlgebraicMatroid/AlgebraicMatroid.jl")
-
-include("CoreMethods/MovingInParameterSpace.jl")
-
-
-include("CoreObjects/EnumerativeProblems/EPGetters.jl")
-
-include("Enumeration/DegreeBounds.jl")
-
-include("Examples/BasicEnumerativeExamples.jl")
-include("Examples/FamousEnumerativeExamples.jl")
-include("Examples/BasicVarietyExamples.jl")
-include("Examples/MatroidRealizations.jl")
-include("Examples/CrossRatioMap.jl")
-include("Visualization/MatroidVisualization.jl")
-include("Examples/AltBurmester.jl")
-include("Examples/CCEquations.jl")
-
-
-include("Exploration/Explore.jl")
-include("Exploration/FibreFunctions.jl")
-include("Exploration/Samplers.jl")
-
-include("Fibres/FibreChecks.jl")
-include("Fibres/FibreFunctions.jl")
-include("Fibres/RealityScores.jl")
-
-include("GaloisGroups/GaloisSampling.jl")
-include("GaloisGroups/GaloisGroups.jl")
-include("GaloisGroups/CoordinateSymmetryGroup.jl")
-
-#include("Optimization/CoreObjects.jl")
-#include("Optimization/Optimizer.jl")
-include("Optimization/OptimizerBeta.jl")
-include("Optimization/OptimizerUpdaters.jl")
-
-
-include("Statistics/Tally.jl")
-
-
-
-
-#include("Visualization/Visualize.jl")
-#include("Visualization/Triangulate.jl")
-include("Visualization/Visualize_Discriminant.jl")
-
-include("Sampling/Sampling.jl")
-
-include("Automation/Automate.jl")
-
-end # module Pandora
-
-
-#=
-Doc template
-
-@doc raw"""
-    b(n)
-
- Returns
- # Examples
- ```jldoctest
-
- ```
- """
-=#
+include("CoreCode/core_code.jl")
+include("degree_bounds.jl")
+include("automation.jl")
+include("Examples/named_examples.jl")
+include("monodromy.jl")
+include("enumerative_problem_constructors.jl")
+include("fibre_functions.jl")
+include("fibre_visualization.jl")
+include("samplers.jl")
+include("optimization.jl")
+include("Summarization/summarize.jl")
+include("visualization.jl")
+include("certification.jl")
+include("fibre_datum.jl")
+include("explore.jl")
+include("Examples/sparse_polynomial_systems.jl")
+include("sparse_enumerative_problems.jl")
+include("sample_datum.jl")
+export ALGORITHM_DATA
+end
