@@ -52,7 +52,7 @@ function explore(EP::EnumerativeProblem, F::AbstractVector{<:Function}; sampler 
     end
 
     P = sampler(n_samples)
-    fibres = map(Fibre,collect(zip(EP(P),P)))
+    fibres =  map(Fibre,zip(EP(P),P))
     filter!(fibre -> valid_fibre(EP, fibre), fibres)
     @vprintln("Number of valid fibres:$(length(fibres))")
     if as_fibres == false
@@ -159,14 +159,14 @@ function explore_reality(EP::EnumerativeProblem; n_samples = 1000, sampler = Uni
     
 end
 
-const FIBRE_DATA = EnumerativeProperty{Vector{FibreDatum}}("fibre_data")
+const FIBRE_DATA = EnumerativeData{Vector{FibreDatum}}("fibre_data")
 
 
 ALGORITHM_DATA[explore_reality] = AlgorithmDatum(
     name = "explore_reality",
     description = "Explores the reality of solutions in an EnumerativeProblem by sampling parameters and solving for real solutions. It attempts to certify a witness for each unique count of real solutions found.",
-    input_properties = [SYSTEM, BASE_FIBRE],
-    output_property = FIBRE_DATA,
+    input_attributes = [SYSTEM, BASE_FIBRE],
+    output_attribute = FIBRE_DATA,
     reliability = :certified,
     automated = false
 )

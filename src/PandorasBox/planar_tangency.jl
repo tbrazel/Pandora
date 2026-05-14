@@ -1,108 +1,4 @@
-export 
-    TwentySevenLines,
-    TangentCircles,
-    SphereProjection,
-    BarthSextic,
-    KuramotoModel,
-    SymmetricTwentySevenLines,
-    TangentConics
-
-function SphereProjection()
-    @var x,y,z
-    @var a,b
-    F = System([x^2+y^2+z^2-1,x-a,y-b],variables = [x,y,z], parameters = [a,b])
-    return(EnumerativeProblem(F))
-end
-    
-function TwentySevenLines()
-    @var x,y,z
-    @var a[1:4,1:4,1:4]
-    terms = []
-    for i in 0:3
-        for j in 0:3
-            for k in 0:3
-                if i+j+k<=3
-                    push!(terms,[i,j,k])
-                end
-            end
-        end
-    end
-    f = sum([a[c[1]+1,c[2]+1,c[3]+1]*x^c[1]*y^c[2]*z^c[3] for c in terms])
-    Params = [a[c[1]+1,c[2]+1,c[3]+1] for c in terms]
-
-    @var t,b[1:2],c[1:2]
-
-    lx = t
-    ly = b[1]*t+b[2]
-    lz = c[1]*t+c[2]
-
-    g = subs(f,[x,y,z]=>[lx,ly,lz])
-    Eqs = coefficients(g,[t])
-
-    F = System(Eqs,variables=[b[1],b[2],c[1],c[2]],parameters=Params)
-    E = EnumerativeProblem(F)
-end
-
-function SymmetricTwentySevenLines()
-    @var x,y,z
-    @var a[1:4,1:4,1:4,1:4]
-    terms = []
-    for i in 0:3
-        for j in 0:3
-            for k in 0:3
-                if i+j+k<=3
-                    push!(terms,[i,j,k, 3-i-j-k])
-                end
-            end
-        end
-    end
-
-    f = sum([a[sort([c[1]+1,c[2]+1,c[3]+1,c[4]+1])...]*x^c[1]*y^c[2]*z^c[3] for c in terms])
-    Params = unique([a[sort([c[1]+1,c[2]+1,c[3]+1,c[4]+1])...] for c in terms])
-
-    @var t,d[1:2],b[1:2],c[1:2]
-
-    lx = d[1]*t+d[2]
-    ly = b[1]*t+b[2]
-    lz = c[1]*t+c[2]
-
-    g = subs(f,[x,y,z]=>[lx,ly,lz])
-    Eqs = coefficients(g,[t])
-    push!(Eqs, sum(randn(Float64,6).*vcat(d,b,c))-1)
-    push!(Eqs, sum(randn(Float64,6).*vcat(d,b,c))-1)
-
-    F = System(Eqs,variables=[b[1],b[2],c[1],c[2],d[1],d[2]],parameters=Params)
-    E = EnumerativeProblem(F)
-end
-
-
-
-
-
-function TangentConics()
-    @var Q[1:5]
-    @var u[1:5], v[1:5] 
-    @var a[1:5,1:6] # Five fixed conics with coefficients defined by a[1], ..., a[6]
-    #=
-    Set up the polynomial system defining tritangent circles
-    =#
-    @var x,y
-    C = Q[1]*x^2+Q[2]*x*y+Q[3]*y^2+Q[4]*x+Q[5]*y+1 # Conic
-    ParameterConics = []
-    for i in 1:5
-    	push!(ParameterConics,a[i,1]*x^2 + a[i,2]*x*y + a[i,3]*y^2 + a[i,4]*x + a[i,5]*y + 1)
-    end
-    Eqs = []
-    for i in 1:5
-        push!(Eqs, evaluate(C,[x,y]=>[u[i],v[i]]))
-        push!(Eqs, evaluate(ParameterConics[i], [x,y]=>[u[i],v[i]]))
-        push!(Eqs, det([differentiate(Eqs[end], [u[i], v[i]]) differentiate(Eqs[end-1], [u[i], v[i]])])) 
-    end
-    F = System(Eqs, variables = vcat(vec(Q), vec(u),vec(v)), parameters = vec(a))
-
-    return(EnumerativeProblem(F))
-end
-
+export TangentCircles, TangentConics, TangentCircles2, TangentConics2, ApolloniusCircles
 
 ##Code taken from https://mathrepo.mis.mpg.de/circlesTangentConics/
 function TangentConics2(SIG)
@@ -255,32 +151,32 @@ function TangentCircles()
     return(EnumerativeProblem(F))
 end
 
-function BarthSextic()
-    @var w, x, y, z
-    f = 4*(w^2*x^2 - y^2)*(w^2*y^2 - z^2)*(w^2*z^2 - x^2) - (1 + 2*w)*(x^2 + y^2 + z^2 - 1^2)^2
-    golden_ratio = (1 + sqrt(5))/2
-    f = subs(f, w=>golden_ratio)
-    F = System([f], variables = [z], parameters = [x,y])
 
-    return EnumerativeProblem(F)
+function TangentConics()
+    @var Q[1:5]
+    @var u[1:5], v[1:5] 
+    @var a[1:5,1:6] # Five fixed conics with coefficients defined by a[1], ..., a[6]
+    #=
+    Set up the polynomial system defining tritangent circles
+    =#
+    @var x,y
+    C = Q[1]*x^2+Q[2]*x*y+Q[3]*y^2+Q[4]*x+Q[5]*y+1 # Conic
+    ParameterConics = []
+    for i in 1:5
+    	push!(ParameterConics,a[i,1]*x^2 + a[i,2]*x*y + a[i,3]*y^2 + a[i,4]*x + a[i,5]*y + 1)
+    end
+    Eqs = []
+    for i in 1:5
+        push!(Eqs, evaluate(C,[x,y]=>[u[i],v[i]]))
+        push!(Eqs, evaluate(ParameterConics[i], [x,y]=>[u[i],v[i]]))
+        push!(Eqs, det([differentiate(Eqs[end], [u[i], v[i]]) differentiate(Eqs[end-1], [u[i], v[i]])])) 
+    end
+    F = System(Eqs, variables = vcat(vec(Q), vec(u),vec(v)), parameters = vec(a))
+
+    return(EnumerativeProblem(F))
 end
 
-function KuramotoModel(n)
-    @var w[1:(n-1)], s[1:n], c[1:n]
-    equations = []
-    for i in 1:(n-1)
-        sum = 0
-        for j in 1:n
-            sum += (s[i]*c[j] - s[j]*c[i])
-        end
-        f_1 = w[i] - (1/n)*sum
-        f_2 = c[i]^2 + s[i]^2 - 1
-        f_1 = subs(f_1, [s[n], c[n]]=>[0, 1])
-        f_2 = subs(f_2, [s[n], c[n]]=>[0, 1])
-        f_1 == 0 || push!(equations, f_1)
-        f_2 == 0 || push!(equations, f_2)
-    end
-    F = System(equations, variables = [s[1:n-1]..., c[1:n-1]...], parameters = [w[1:n-1]...])
 
-    return EnumerativeProblem(F)
+function ApolloniusCircles()
+    T = TangentCircles([:C,:C,:C])
 end

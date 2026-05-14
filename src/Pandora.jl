@@ -8,7 +8,7 @@ const VERSION_NUMBER = VersionNumber(PROJECT_TOML["version"])
 using Dates: today
 
 # Use from HC only
-using HomotopyContinuation: TrackerOptions, CertificationResult, Result, subs, coefficients, support_coefficients, paths_to_track, degrees, Expression, Variable, differentiate
+using HomotopyContinuation: TrackerOptions, CertificationResult, Result, subs, coefficients, support_coefficients, paths_to_track, degrees, Expression, Variable, differentiate, monodromy_solve
 # Use and extend from HC
 import HomotopyContinuation: expressions, variables, parameters, solve, solutions, evaluate, certify, mixed_volume
 # Use from HC with intent to export
@@ -57,8 +57,8 @@ end
 
 include("CoreCode/core_code.jl")
 include("degree_bounds.jl")
+include("sparse_enumerative_problems.jl")
 include("automation.jl")
-include("Examples/named_examples.jl")
 include("monodromy.jl")
 include("enumerative_problem_constructors.jl")
 include("fibre_functions.jl")
@@ -70,8 +70,21 @@ include("visualization.jl")
 include("certification.jl")
 include("fibre_datum.jl")
 include("explore.jl")
-include("Examples/sparse_polynomial_systems.jl")
-include("sparse_enumerative_problems.jl")
 include("sample_datum.jl")
+include("lazy_brute.jl")
+include("PandorasBox/alt_burmester.jl")
+include("PandorasBox/benchmarks.jl")
+include("PandorasBox/conic_lines.jl")
+include("PandorasBox/cubic_bisecants.jl")
+include("PandorasBox/fano_problems.jl")
+include("PandorasBox/kuramoto.jl")
+include("PandorasBox/planar_higher_order_contact.jl")
+include("PandorasBox/planar_tangency.jl")
+include("PandorasBox/rigid_graph_embeddings.jl")
+include("PandorasBox/schubert.jl")
+include("PandorasBox/sparse_polynomial_systems.jl")
+include("PandorasBox/spectrahedral_nodes.jl")
+include("PandorasBox/stewart_gough.jl")
+include("PandorasBox/variety_projections.jl")
 export ALGORITHM_DATA
 end
